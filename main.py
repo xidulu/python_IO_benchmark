@@ -13,7 +13,7 @@ def write(blocksize, blockcount):
     for _ in range(blockcount):
         os.write(out, chunk)
         count += 1
-    os.sync(out)
+    os.fsync(out)
     time_elapsed = time.clock() - start
     return count / time_elapsed
 
@@ -26,6 +26,6 @@ if __name__ == "__main__":
         if t == 0:
             #print os.getpid()
             result = write(blocksize, blockcount)
-            print ("{}ops/s").format(result)
+            print ("{}Mb/s").format(result / 1024**2)
             os._exit(0)
 
