@@ -2,7 +2,7 @@ import os
 import time
 import sys
 
-process_num = 5;
+process_num = 10;
 
 def write(blocksize, blockcount):
     chunk = os.urandom(blocksize)
@@ -21,6 +21,9 @@ def write(blocksize, blockcount):
 if __name__ == "__main__":
     blocksize = int(sys.argv[1]) * 1024
     blockcount = int(sys.argv[2])
+    if os.path.exists("./out"):
+        os.removedirs("./out")
+    os.mkdir("./out")
     for i in range(process_num):
         t = os.fork()
         if t == 0:
