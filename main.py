@@ -7,12 +7,13 @@ process_num = 5;
 def write(blocksize, blockcount):
     chunk = os.urandom(blocksize)
     name = str(os.getpid())
-    out = os.open("./out/" + name, os.O_CREAT | os.O_WRONLY | os.O_SYNC)
+    out = os.open("./out/" + name, os.O_CREAT | os.O_WRONLY)
     count = 0
     start = time.clock()
     for _ in range(blockcount):
         os.write(out, chunk)
         count += 1
+    os.sync(out)
     time_elapsed = time.clock() - start
     return count / time_elapsed
 
