@@ -26,6 +26,6 @@ if __name__ == "__main__":
         if t == 0:
             #print os.getpid()
             result = write(blocksize, blockcount)
-            print ("{}Mb/s").format(result / 1024**2)
+            print ("{}Mb/s").format(result * blocksize/ 1024**2)
             os._exit(0)
 
