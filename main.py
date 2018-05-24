@@ -1,7 +1,7 @@
 import os
 import time
 import sys
-from random import shuffle
+#from random import shuffle
 
 # process_num = 4;
 
@@ -37,8 +37,8 @@ def read_test(blocksize, blockcount, random_access = True):
     dump(blocksize, blockcount)
     out = os.open("/tmp/source", os.O_RDONLY)
     offsets = list(range(0, blockcount * blocksize, blocksize))
-    if (random_access):
-        shuffle(offsets)
+    #if (random_access):
+    #    shuffle(offsets)
     took = []
 
     for offset in offsets:
