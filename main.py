@@ -20,10 +20,12 @@ def write(blocksize, blockcount):
 
 
 def summerize(pid_list):
+    stats = []
     for pid in pid_list:
         name = "./log/" + str(pid) + "stat.out"
         log_in = open(name, "r")
-        print float(log_in.read())
+        stats.append(float(log_in.read()))
+    return sum(stats)
 
 
 if __name__ == "__main__":
@@ -47,7 +49,7 @@ if __name__ == "__main__":
             result = write(blocksize, blockcount)
             #print "{}Mb/s".format(result * blocksize/ 1024**2)
             log_out = open("./log/" + name, "wb")
-            log_out.write(str(result * blocksize/ 1024**2))
+            log_out.write(str(result))
             log_out.close()
             os._exit(0)
         else:
@@ -58,6 +60,6 @@ if __name__ == "__main__":
     for pid_t in processes:
         os.waitpid(pid_t, 0)
 
-    result = summerize(processes)
-    
+    stat = summerize(processes)
+    print stat 
     
