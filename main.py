@@ -7,14 +7,14 @@ import sys
 def write(blocksize, blockcount):
     chunk = os.urandom(blocksize)
     name = str(os.getpid())
-    out = os.open("./out/" + name, os.O_CREAT | os.O_WRONLY | os.O_DIRECT)
+    out = os.open("./out/" + name, os.O_CREAT | os.O_WRONLY)
     count = 0
-    start = time.clock()
+    start = time.time()
     for _ in range(blockcount):
         os.write(out, chunk)
         count += 1
     os.fsync(out)
-    time_elapsed = time.clock() - start
+    time_elapsed = time.time() - start
     os.close(out)
     print ("average latency:{}ms").format((time_elapsed / count) * 1000)
     return count / time_elapsed
