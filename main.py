@@ -5,18 +5,24 @@ import sys
 # process_num = 4;
 
 def write(blocksize, blockcount):
+    """
+    Wi
+    """
+    took = []
     chunk = os.urandom(blocksize)
     name = str(os.getpid())
-    out = os.open("./out/" + name, os.O_CREAT | os.O_WRONLY | os.O_SYNC)
+    out = os.open("./out/" + name, os.O_CREAT | os.O_WRONLY)
     count = 0
-    start = time.time()
     for _ in range(blockcount):
+        start = time.time()
         os.write(out, chunk)
+        time_elapsed = time.time() - start
         count += 1
-    time_elapsed = time.time() - start
+        took.append(time_elapsed)
     os.close(out)
     #print ("average latency:{}ms").format((time_elapsed / count) * 1000)
-    return (count / time_elapsed, (time_elapsed / count) * 1000)
+    print sum(took)
+    return (count / time_elapsed, (sum(took) / count) * 1000)
 
 
 def summerize(pid_list):
