@@ -106,17 +106,16 @@ def initial():
     os.mkdir("./log")
     os.mkdir("./out")
 
-if __name__ == "__main__":
-    blocksize = int(sys.argv[1]) * 1024
-    blockcount = int(sys.argv[2])
-    process_num = int(sys.argv[3])
-    test_mode = sys.argv[4]
+def auto_test(blocksize, blockcount, process_num, test_mode):
+    """ Perform auto test with a given process numbers
+    Return a list of tuples
+    """
     processes = []
     read_source = []
-
+    stats = []
     initial()
    
-    for i in range(process_num):
+    for _ in range(process_num):
         t = os.fork()
         if t == 0:
             # Child process
@@ -141,8 +140,30 @@ if __name__ == "__main__":
     for stat in stats:
         avg_iops.append(stat[0])
         avg_latency.append(stat[1])
-    print sum(avg_iops) * blocksize / 1024 ** 2
-    print float(sum(avg_latency) / len(avg_latency))
+    result = (sum(avg_iops) * blocksize / 1024 ** 2,
+            float(sum(avg_latency) / len(avg_latency)))
 
     #remove all temp files
     cleanup()
+    return result
+
+
+
+
+if __name__ == "__main__":
+    blocksize = int(sys.argv[1]) * 1024
+    blockcount = int(sys.argv[2])
+    process_num = int(sys.argv[3])
+    test_mode = sys.argv[4]
+    log = open("./stats.log", "w+")
+    test_list = [1, 2, 4, 8, 12, 16, 24, 32, 40, 50, 70]
+    for num in test_list:
+        iops = []
+        latency = []
+        print "Performing test: {} processes".format(num)
+        for i in range(20):
+            a, b = auto_test(blocksize, blockcount, num, test_mode)
+            iops.append(a)
+            latency.append(b)
+        log.write(str(sum(iops) / 20.0) + ',' + str(sum(latency) / 20.0) + "\n")
+    log.close()
