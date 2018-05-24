@@ -13,8 +13,8 @@ def write(blocksize, blockcount):
     for _ in range(blockcount):
         os.write(out, chunk)
         count += 1
-    #os.fsync(out)
     time_elapsed = time.time() - start
+    os.fsync(out)
     os.close(out)
     print ("average latency:{}ms").format((time_elapsed / count) * 1000)
     return count / time_elapsed
