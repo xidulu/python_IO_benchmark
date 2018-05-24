@@ -63,5 +63,4 @@ if __name__ == "__main__":
         os.waitpid(pid_t, 0)
 
     stat = summerize(processes)
-    print stat 
-    
+    print "{}Mb/s".format(stat * blocksize/ 1024**2)
