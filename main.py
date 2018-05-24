@@ -2,7 +2,7 @@ import os
 import time
 import sys
 
-process_num = 10;
+# process_num = 4;
 
 def write(blocksize, blockcount):
     chunk = os.urandom(blocksize)
@@ -31,6 +31,7 @@ def summerize(pid_list):
 if __name__ == "__main__":
     blocksize = int(sys.argv[1]) * 1024
     blockcount = int(sys.argv[2])
+    process_num = int(sys.argv[3])
     processes = []
     read_source = []
 
