@@ -16,8 +16,8 @@ def write(blocksize, blockcount):
     time_elapsed = time.time() - start
     os.fsync(out)
     os.close(out)
-    print ("average latency:{}ms").format((time_elapsed / count) * 1000)
-    return count / time_elapsed
+    #print ("average latency:{}ms").format((time_elapsed / count) * 1000)
+    return (count / time_elapsed, (time_elapsed / count) * 1000)
 
 
 def summerize(pid_list):
@@ -25,8 +25,10 @@ def summerize(pid_list):
     for pid in pid_list:
         name = "./log/" + str(pid) + "stat.out"
         log_in = open(name, "r")
-        stats.append(float(log_in.read()))
-    return sum(stats)
+        iops, latency = log_in.read().strip('()').split(',')
+        stat = (float(iops), float(latency))
+        stats.append(stat)
+    return stats
 
 
 if __name__ == "__main__":
@@ -62,5 +64,11 @@ if __name__ == "__main__":
     for pid_t in processes:
         os.waitpid(pid_t, 0)
 
-    stat = summerize(processes)
-    print "{}Mb/s".format(stat * blocksize/ 1024**2)
+    stats = summerize(processes)
+    avg_iops = []
+    avg_latency = []
+    for stat in stats:
+        avg_iops.append(stat[0])
+        avg_latency.append(stat[1])
+    print sum(avg_iops) * blocksize / 1024 ** 2
+    # print avg_latency.
