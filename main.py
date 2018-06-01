@@ -1,11 +1,17 @@
 import os
 import time
 import sys
-#from random import shuffle
+
 
 # process_num = 4;
 
 #class io_benchmark:
+
+def shuffle(a):
+    """ Shuffle function specialized for I/O test
+    """
+    for i in range(1, len(a) / 2):
+        a[i], a[len(a) - i] = a[len(a) - i], a[i] 
 
 
 def dump(blocksize, blockout):
@@ -37,8 +43,8 @@ def read_test(blocksize, blockcount, random_access = True):
     dump(blocksize, blockcount)
     out = os.open("/tmp/source", os.O_RDONLY)
     offsets = list(range(0, blockcount * blocksize, blocksize))
-    #if (random_access):
-    #    shuffle(offsets)
+    if (random_access):
+        shuffle(offsets)
     took = []
 
     for offset in offsets:
@@ -53,7 +59,7 @@ def read_test(blocksize, blockcount, random_access = True):
     os.close(out)
     return (count / sum(took), (sum(took) / count) * 1000)
 
-def write_test(blocksize, blockcount):
+def write_test(blocksize, blockcount, random_access = True):
     """ Test write speed(single process)
     
     Write to a temporary file under the ./tmp/ named by
@@ -72,8 +78,13 @@ def write_test(blocksize, blockcount):
     name = str(os.getpid())
     out = os.open("/tmp/" + name, os.O_CREAT | os.O_WRONLY)
     count = 0
-    for _ in range(blockcount):
+    offsets = list(range(0, blockcount * blocksize, blocksize))
+    if (random_access):
+        shuffle(offsets)
+
+    for offset in offsets:
         start = time.time()
+        os.lseek(out, offset, os.SEEK_SET)
         os.write(out, chunk)
         time_elapsed = time.time() - start
         count += 1
@@ -107,11 +118,10 @@ def initial():
     os.mkdir("./out")
 
 def auto_test(blocksize, blockcount, process_num, test_mode):
-    """ Perform auto test with a given process numbers
-    Return a list of tuples
+    """ Perform auto test with given configuration
+    Return a tuple: (iops, average_latency(ms))
     """
     processes = []
-    read_source = []
     stats = []
     initial()
    
@@ -120,10 +130,14 @@ def auto_test(blocksize, blockcount, process_num, test_mode):
         if t == 0:
             # Child process
             name = str(os.getpid()) + 'stat.out'
-            if (test_mode == 'R'):
+            if (test_mode == 'RR'):
                 result = read_test(blocksize, blockcount)
-            else:
+            elif test_mode == 'SR':
+                result = read_test(blocksize, blockcount, False)
+            elif test_mode == 'RW':
                 result = write_test(blocksize, blockcount)
+            elif test_mode == 'SW':
+                result = write_test(blocksize, blockcount, False)
             with open("./log/" + name, 'w') as out:
                 out.write(str(result))
             os._exit(0)
@@ -140,7 +154,7 @@ def auto_test(blocksize, blockcount, process_num, test_mode):
     for stat in stats:
         avg_iops.append(stat[0])
         avg_latency.append(stat[1])
-    result = (sum(avg_iops) * blocksize / 1024 ** 2,
+    result = (sum(avg_iops),
             float(sum(avg_latency) / len(avg_latency)))
 
     #remove all temp files
@@ -151,19 +165,45 @@ def auto_test(blocksize, blockcount, process_num, test_mode):
 
 
 if __name__ == "__main__":
-    blocksize = int(sys.argv[1]) * 1024
-    blockcount = int(sys.argv[2])
-    process_num = int(sys.argv[3])
-    test_mode = sys.argv[4]
-    log = open("./stats.log", "w+")
-    test_list = [1, 2, 4, 8, 12, 16, 24, 32, 40, 50, 70]
-    for num in test_list:
-        iops = []
-        latency = []
-        print "Performing test: {} processes".format(num)
-        for i in range(20):
-            a, b = auto_test(blocksize, blockcount, num, test_mode)
-            iops.append(a)
-            latency.append(b)
-        log.write(str(sum(iops) / 20.0) + ',' + str(sum(latency) / 20.0) + "\n")
+    # blocksize = int(sys.argv[1]) * 1024
+    # blockcount = int(sys.argv[2])
+    # process_num = int(sys.argv[3])
+    # test_mode = sys.argv[4]
+    log = open("./stats.csv", "w+")
+    
+    blockcount = 40000
+    test_mode = ["SR", "SW", "RR", "RW"]
+
+    #bs_list: all blocksize to be tested(bytes)
+    bs_list = []
+    for p in range(8, 9):
+        bs_list.append(2 ** p)
+
+    #num_list: numbers of process to be tested
+    num_list = [1, 2, 4, 8, 16, 32, 60]
+    
+    #title for the csv file
+    title = "process_number,blocksize,avg_latency,IOPS, mode"
+
+    #for accuracy, we repeat each experiment a few times
+    repeat_time = 2
+
+    for mode in test_mode:
+        for num in num_list:
+            for blocksize in bs_list:
+                iops = []
+                latency = []
+                print "Performing test: {} processes, blocksize {}, mode {}...".format(num, blocksize / 1024.0, mode)
+                for i in range(repeat_time):
+                    a, b = auto_test(blocksize, blockcount, num, mode)
+                    iops.append(a)
+                    latency.append(b)
+                log.write(str(num) + ',' + 
+                            str(blocksize / 1024.0) + ',' + 
+                            str(1.0 * sum(iops) / repeat_time) + ',' +
+                            str(1.0 * sum(latency) / repeat_time) + ',' +
+                            mode + "\n")
+
+    print "writing log..."
     log.close()
+    print "Done!"
