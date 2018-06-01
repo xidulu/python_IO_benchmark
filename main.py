@@ -40,7 +40,7 @@ def read_test(blocksize, blockcount, random_access = True):
                 average latency(millisecond))
     """
     count = 0
-    dump(blocksize, blockcount)
+    #dump(blocksize, blockcount)
     out = os.open("/tmp/source", os.O_RDONLY)
     offsets = list(range(0, blockcount * blocksize, blocksize))
     if (random_access):
@@ -131,8 +131,10 @@ def auto_test(blocksize, blockcount, process_num, test_mode):
             # Child process
             name = str(os.getpid()) + 'stat.out'
             if (test_mode == 'RR'):
+                dump(blocksize, blockcount)
                 result = read_test(blocksize, blockcount)
             elif test_mode == 'SR':
+                dump(blocksize, blockcount)
                 result = read_test(blocksize, blockcount, False)
             elif test_mode == 'RW':
                 result = write_test(blocksize, blockcount)
