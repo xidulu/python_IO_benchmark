@@ -19,7 +19,7 @@ def dump(blocksize, blockout):
     The file is used to test read speed
     """
     chunk = os.urandom(blocksize)
-    dump = os.open("/tmp/source", os.O_CREAT | os.O_WRONLY)
+    dump = os.open("./tmp/source", os.O_CREAT | os.O_WRONLY)
     for _ in range(blockcount):
         os.write(dump, chunk)
     os.close(dump)
@@ -41,7 +41,7 @@ def read_test(blocksize, blockcount, random_access = True):
     """
     count = 0
     #dump(blocksize, blockcount)
-    out = os.open("/tmp/source", os.O_RDONLY)
+    out = os.open("./tmp/source", os.O_RDONLY)
     offsets = list(range(0, blockcount * blocksize, blocksize))
     if (random_access):
         shuffle(offsets)
@@ -76,7 +76,7 @@ def write_test(blocksize, blockcount, random_access = True):
     took = []
     chunk = os.urandom(blocksize)
     name = str(os.getpid())
-    out = os.open("/tmp/" + name, os.O_CREAT | os.O_WRONLY)
+    out = os.open("./tmp/" + name, os.O_CREAT | os.O_WRONLY)
     count = 0
     offsets = list(range(0, blockcount * blocksize, blocksize))
     if (random_access):
