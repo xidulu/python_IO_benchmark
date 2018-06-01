@@ -172,18 +172,19 @@ if __name__ == "__main__":
     # blockcount = int(sys.argv[2])
     # process_num = int(sys.argv[3])
     # test_mode = sys.argv[4]
-    log = open("./stats.csv", "w+")
+    log = open("./stats.csv", "w")
+
+    file_size = 1000 
     
-    blockcount = 40000
     test_mode = ["SR", "SW", "RR", "RW"]
 
     #bs_list: all blocksize to be tested(bytes)
     bs_list = []
-    for p in range(8, 9):
+    for p in range(8, 22):
         bs_list.append(2 ** p)
 
     #num_list: numbers of process to be tested
-    num_list = [1, 2, 4, 8, 16, 32, 60]
+    num_list = [1, 2, 4, 8, 16, 30, 40]
     
     #title for the csv file
     title = "process_number,blocksize,avg_latency,IOPS, mode"
@@ -194,6 +195,7 @@ if __name__ == "__main__":
     for mode in test_mode:
         for num in num_list:
             for blocksize in bs_list:
+                blockcount = file_size * (1024 ** 2) / blocksize / num
                 iops = []
                 latency = []
                 print "Performing test: {} processes, blocksize {}, mode {}...".format(num, blocksize / 1024.0, mode)
