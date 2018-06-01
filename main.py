@@ -114,6 +114,7 @@ def cleanup():
 
 def initial():
     cleanup()
+    os.mkdir("./tmp")
     os.mkdir("./log")
     os.mkdir("./out")
 
