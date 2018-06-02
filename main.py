@@ -168,14 +168,11 @@ def auto_test(blocksize, blockcount, process_num, test_mode):
 
 
 if __name__ == "__main__":
-    # blocksize = int(sys.argv[1]) * 1024
-    # blockcount = int(sys.argv[2])
-    # process_num = int(sys.argv[3])
-    # test_mode = sys.argv[4]
     log = open("./stats.csv", "w")
-
+    #size of temporary file
     file_size = 1000 
     
+    #mode to be tested
     test_mode = ["SR", "SW", "RR", "RW"]
 
     #bs_list: all blocksize to be tested(bytes)
@@ -187,7 +184,7 @@ if __name__ == "__main__":
     num_list = [1, 2, 4, 8, 16, 30, 40]
     
     #title for the csv file
-    title = "process_number,blocksize,avg_latency,IOPS, mode"
+    title = "process_number,blocksize,iops,avg_latency,mode\n"
 
     #for accuracy, we repeat each experiment a few times
     repeat_time = 2
