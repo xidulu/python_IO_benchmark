@@ -3,10 +3,6 @@ import time
 import sys
 
 
-# process_num = 4;
-
-#class io_benchmark:
-
 def shuffle(a):
     """ Shuffle function specialized for I/O test
     """
